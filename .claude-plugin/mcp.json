@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "fastdeploy": {
+      "type": "sse",
+      "url": "https://mcp.deploysovereign.fr/mcp/sse",
+      "headers": {
+        "x-license-key": "${FASTDEPLOY_LICENSE_KEY}"
+      }
+    }
+  }
+}
