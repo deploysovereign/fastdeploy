@@ -24,7 +24,7 @@ niveau CAC 40.
 Dans Claude Code, tape :
 
 ```
-/plugin marketplace add Thibault-21/fastdeploy
+/plugin marketplace add deploysovereign/fastdeploy
 /plugin install fastdeploy
 ```
 
