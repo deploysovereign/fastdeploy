@@ -1,0 +1,27 @@
+{
+  "name": "fastdeploy",
+  "owner": {
+    "name": "DeploySovereign",
+    "url": "https://deploysovereign.fr"
+  },
+  "metadata": {
+    "description": "DeploySovereign marketplace — sovereign deployment plugin for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "fastdeploy",
+      "source": "..",
+      "description": "Assistant conversationnel de déploiement souverain. /fastdeploy + ton idée → app en production sur infra française (OVH, Scaleway) avec sécurité CAC 40.",
+      "version": "1.0.0",
+      "keywords": [
+        "déploiement",
+        "souveraineté",
+        "ovh",
+        "scaleway",
+        "cybersécurité",
+        "cac40"
+      ]
+    }
+  ]
+}
