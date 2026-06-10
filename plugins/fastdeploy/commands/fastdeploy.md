@@ -199,21 +199,35 @@ Outils MCP : `deployment_advisor` → `generate_files` → `ovh_provision`/`scal
   `serverless` (~0 € au repos) ou `small` (~13 €/mois) ; app critique / forte charge →
   `ha`. Ne JAMAIS mettre `ha` par défaut pour un petit client.
 - Credentials cloud : demander une clé API **scopée au projet du client** (créer un
-  projet dédié + une application IAM + une politique limitée à ce projet). Prévenir que
+  projet dédié + une application IAM + une politique limitée à ce projet), puis les
+  enregistrer UNE SEULE FOIS avec **`save_credentials`** (stockage chiffré AES-256-GCM
+  lié à la licence). Ensuite `scaleway_provision` et `deploy_app` les résolvent
+  automatiquement — ne JAMAIS redemander les clés à chaque appel. Prévenir que
   pour une BDD Serverless SQL Scaleway, le username PostgreSQL = l'UUID du principal
   IAM (pas l'access key) et que la 1re requête après veille prend ~4 s.
 
-**Mise en ligne de l'app (après le provisioning) :**
-1. **Build & push de l'image** — la seule étape qui demande Docker : build avec le
-   Dockerfile de `generate_files`, puis `docker login rg.<region>.scw.cloud -u nologin`
-   (mot de passe = secret key) et `docker push`. Si l'utilisateur n'a pas Docker en
-   local, propose de builder sur une machine distante (VPS) ou via la CI générée.
-   Le registry namespace se crée via l'API Registry si besoin.
-2. **`deploy_app`** (`action: "deploy"`) avec l'image poussée, le port, les variables
-   (`env`) et les secrets (`secrets` : DATABASE_URL, mots de passe — chiffrés par
-   Scaleway). L'outil crée/réutilise le namespace, déploie le container, attend le
-   `ready` et **retourne l'URL publique**. Relancer `deploy_app` avec une nouvelle
-   image suffit pour livrer une mise à jour ; `action: "status"` donne l'état + l'URL.
+**Mise en ligne de l'app (après le provisioning) — deux chemins :**
+
+**Chemin A (recommandé si le secteur correspond) : image starter prête à l'emploi.**
+Pour la restauration, l'image publique
+`rg.fr-par.scw.cloud/deploysovereign-starters/restaurant-starter:1.0` contient
+l'app de base complète (réservation par zones, menu du jour + carte, admin) et
+initialise sa base toute seule au démarrage. AUCUN build nécessaire : appeler
+directement `deploy_app` avec cette image, les `env` de branding
+(`RESTAURANT_NAME`, `RESTAURANT_TAGLINE`, `RESTAURANT_ADDRESS`, `RESTAURANT_PHONE`)
+et les `secrets` (`DATABASE_URL` de la BDD provisionnée, `ADMIN_PASSWORD`,
+`ADMIN_SECRET` — générer des valeurs robustes). URL publique en ~2 minutes.
+
+**Chemin B (app sur mesure) : build & push de l'image** — la seule étape qui
+demande Docker : build avec le Dockerfile de `generate_files`, puis
+`docker login rg.<region>.scw.cloud -u nologin` (mot de passe = secret key) et
+`docker push`. Si l'utilisateur n'a pas Docker en local, propose de builder sur
+une machine distante ou via la CI générée. Puis `deploy_app` comme ci-dessus.
+
+Dans les deux cas : `deploy_app` crée/réutilise le namespace, déploie le container,
+attend le `ready` et **retourne l'URL publique**. Relancer `deploy_app` avec une
+nouvelle image suffit pour livrer une mise à jour ; `action: "status"` donne
+l'état + l'URL.
 
 Ne promets l'« URL finale » qu'une fois `deploy_app` revenu en `ready`.
 
