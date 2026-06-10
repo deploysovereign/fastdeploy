@@ -189,8 +189,8 @@ type, hébergement, paiement, auth, sécurité.
 « Tape **OK** pour déployer, ou indique ce que tu veux changer. »
 
 ### Étape 10 — Déploiement
-Outils MCP : `deployment_advisor` → `generate_files` → `ovh_provision`/`scaleway_provision`.
-Explique chaque étape avant de la lancer.
+Outils MCP : `deployment_advisor` → `generate_files` → `ovh_provision`/`scaleway_provision`
+→ `deploy_app`. Explique chaque étape avant de la lancer.
 
 **Paramètres à bien passer :**
 - `deployment_advisor` : passer `platform` = l'hébergement choisi à l'étape 5 (l'advisor
@@ -203,11 +203,19 @@ Explique chaque étape avant de la lancer.
   pour une BDD Serverless SQL Scaleway, le username PostgreSQL = l'UUID du principal
   IAM (pas l'access key) et que la 1re requête après veille prend ~4 s.
 
-**Honnêteté sur le livrable :** le provisioning crée l'INFRASTRUCTURE (réseau, BDD,
-runtime). L'application elle-même est ensuite mise en ligne via les fichiers générés
-(Dockerfile, CI/CD) : build de l'image → push sur le Container Registry → création du
-container. Guide l'utilisateur dans ces étapes (ou exécute-les si tu as accès aux
-outils nécessaires). Ne promets l'« URL finale » qu'une fois le container déployé.
+**Mise en ligne de l'app (après le provisioning) :**
+1. **Build & push de l'image** — la seule étape qui demande Docker : build avec le
+   Dockerfile de `generate_files`, puis `docker login rg.<region>.scw.cloud -u nologin`
+   (mot de passe = secret key) et `docker push`. Si l'utilisateur n'a pas Docker en
+   local, propose de builder sur une machine distante (VPS) ou via la CI générée.
+   Le registry namespace se crée via l'API Registry si besoin.
+2. **`deploy_app`** (`action: "deploy"`) avec l'image poussée, le port, les variables
+   (`env`) et les secrets (`secrets` : DATABASE_URL, mots de passe — chiffrés par
+   Scaleway). L'outil crée/réutilise le namespace, déploie le container, attend le
+   `ready` et **retourne l'URL publique**. Relancer `deploy_app` avec une nouvelle
+   image suffit pour livrer une mise à jour ; `action: "status"` donne l'état + l'URL.
+
+Ne promets l'« URL finale » qu'une fois `deploy_app` revenu en `ready`.
 
 En cas d'abandon ou de test : `scaleway_provision` avec `action: "delete"` nettoie
 toutes les ressources du tenant (et `status` fait l'inventaire).

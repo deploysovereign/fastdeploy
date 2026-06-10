@@ -1,6 +1,6 @@
 {
   "name": "fastdeploy",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Assistant conversationnel de déploiement souverain. Tape /fastdeploy + ton idée, réponds à quelques questions, et obtiens une application de base en production sur infrastructure française (OVH, Scaleway), avec authentification robuste et conformité cybersécurité niveau CAC 40.",
   "author": {
     "name": "DeploySovereign",
