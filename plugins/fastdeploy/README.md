@@ -19,16 +19,16 @@ Dans Claude Code, ouvrir les connecteurs / plugins :
 
 Ou via le menu **Connectors** → rechercher "FastDeploy" → **Activer**.
 
-### Étape 2 — Configurer la clé de licence
+### Étape 2 — Autoriser le serveur MCP (OAuth)
 
-Après souscription, l'utilisateur reçoit sa clé. L'ajouter comme variable
-d'environnement :
+Au premier `/fastdeploy`, Claude Code détecte que le serveur MCP requiert
+une authentification et lance automatiquement le flow OAuth : une page
+s'ouvre dans le navigateur, tu colles ta clé de licence (`ds_live_…`)
+reçue après souscription, tu valides — c'est tout. Le token est mémorisé
+par Claude Code, plus rien à faire ensuite.
 
-```bash
-export FASTDEPLOY_LICENSE_KEY="ds_live_xxxxxxxxxxxxxxxx"
-```
-
-Ou dans la configuration Claude Code.
+> ℹ️ Plus besoin de variable d'environnement `FASTDEPLOY_LICENSE_KEY`
+> (déprécié depuis 1.1.0).
 
 ### Étape 3 — Utiliser
 
