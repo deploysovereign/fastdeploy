@@ -76,15 +76,27 @@ Ne pas se contenter du visuel : confirmer ce que l'app FAIT et comment l'utilisa
 s'en sert. Présente deux blocs clairs :
 
 **A. Les fonctionnalités de l'app de base** (déduis-les du secteur + description)
-Liste ce qui sera inclus dans la version de base, par exemple pour un restaurant :
+
+⚠️ RÈGLE D'HONNÊTETÉ — l'app de base est un SOCLE MINIMAL. Ne ranger dans « version
+de base » QUE : le parcours utilisateur principal (ex: réserver), les pages de contenu
+(menu, contact), et un espace admin SIMPLE (consulter + gérer les données du parcours
+principal). Tout le reste va dans « ajoutable ensuite par prompt » — notamment et
+SANS exception : connecteurs externes (POS, partenaires), revenue management, scoring,
+sous-comptes / rôles multiples, modération, fidélité, newsletters, exports.
+Si l'utilisateur veut ajouter une feature avancée à la base : accepte, mais dis
+clairement qu'elle arrivera en itération juste APRÈS la mise en ligne du socle,
+pas dedans. Ne fais JAMAIS valider un périmètre que l'app de base ne livrera pas.
+
+Par exemple pour un restaurant :
 > Voici les fonctionnalités prévues pour ta version de base :
-> - 📅 Réservation en ligne (date, heure, nombre de convives)
-> - 📋 Page menu consultable
+> - 📅 Réservation en ligne (date, service, nombre de convives, zone)
+> - 📋 Menu du jour + carte consultables
 > - 📍 Page contact + plan d'accès
-> - 🔐 Espace administrateur (gérer les réservations, voir les statistiques)
+> - 🔐 Espace administrateur simple : voir et gérer les réservations à venir
 >
 > Et ce qui n'est PAS dans la base (ajoutable ensuite par prompt) :
-> - Paiement d'acompte · Avis clients · Programme de fidélité · Commande à emporter
+> - Paiement d'acompte · Éditeur de menu · Quotas configurables · Avis clients ·
+>   Sous-comptes · Connecteur caisse · Fidélité · Commande à emporter
 
 **B. Le parcours utilisateur principal** (le chemin clé, étape par étape)
 Décris le parcours du visiteur, par exemple :
@@ -178,7 +190,30 @@ type, hébergement, paiement, auth, sécurité.
 
 ### Étape 10 — Déploiement
 Outils MCP : `deployment_advisor` → `generate_files` → `ovh_provision`/`scaleway_provision`.
-Explique chaque étape. Donne l'URL finale. Propose les prochaines fonctionnalités par prompt.
+Explique chaque étape avant de la lancer.
+
+**Paramètres à bien passer :**
+- `deployment_advisor` : passer `platform` = l'hébergement choisi à l'étape 5 (l'advisor
+  optimise pour lui au lieu d'en recommander un autre).
+- `scaleway_provision` : choisir `db_size` selon le profil — TPE/petit commerce →
+  `serverless` (~0 € au repos) ou `small` (~13 €/mois) ; app critique / forte charge →
+  `ha`. Ne JAMAIS mettre `ha` par défaut pour un petit client.
+- Credentials cloud : demander une clé API **scopée au projet du client** (créer un
+  projet dédié + une application IAM + une politique limitée à ce projet). Prévenir que
+  pour une BDD Serverless SQL Scaleway, le username PostgreSQL = l'UUID du principal
+  IAM (pas l'access key) et que la 1re requête après veille prend ~4 s.
+
+**Honnêteté sur le livrable :** le provisioning crée l'INFRASTRUCTURE (réseau, BDD,
+runtime). L'application elle-même est ensuite mise en ligne via les fichiers générés
+(Dockerfile, CI/CD) : build de l'image → push sur le Container Registry → création du
+container. Guide l'utilisateur dans ces étapes (ou exécute-les si tu as accès aux
+outils nécessaires). Ne promets l'« URL finale » qu'une fois le container déployé.
+
+En cas d'abandon ou de test : `scaleway_provision` avec `action: "delete"` nettoie
+toutes les ressources du tenant (et `status` fait l'inventaire).
+
+Termine en proposant les prochaines fonctionnalités par prompt (celles listées
+« hors base » à l'étape 3).
 
 ## Important
 - Outils MCP non connectés (pas de licence) → explique-le, propose de générer les fichiers quand même.
