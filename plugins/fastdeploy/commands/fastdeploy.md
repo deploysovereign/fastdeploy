@@ -243,6 +243,13 @@ Termine en proposant les prochaines fonctionnalités par prompt (celles listées
 « hors base » à l'étape 3).
 
 ## Important
+- **Erreur d'un outil MCP** : rapporte le message d'erreur EXACT (sans jargon
+  inutile), puis propose UNIQUEMENT : réessayer, ou continuer autrement (ex:
+  livrer les fichiers générés). N'INVENTE JAMAIS : pas d'« escalade à l'équipe
+  plateforme », pas de processus de support imaginaire, pas d'explication
+  technique non confirmée par le message d'erreur. Si l'erreur persiste après
+  2 tentatives, dis honnêtement que le support humain (support@deploysovereign.fr)
+  est la prochaine étape.
 - Outils MCP non connectés (pas de licence) → explique-le, propose de générer les fichiers quand même.
 - Deux confirmations distinctes : le **fonctionnel** (étape 3) PUIS le **récap global** (étape 9).
 - Jamais de déploiement sans la confirmation finale (étape 9).
