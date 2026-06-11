@@ -198,13 +198,15 @@ Outils MCP : `deployment_advisor` → `generate_files` → `ovh_provision`/`scal
 - `scaleway_provision` : choisir `db_size` selon le profil — TPE/petit commerce →
   `serverless` (~0 € au repos) ou `small` (~13 €/mois) ; app critique / forte charge →
   `ha`. Ne JAMAIS mettre `ha` par défaut pour un petit client.
-- Credentials cloud : demander une clé API **scopée au projet du client** (créer un
-  projet dédié + une application IAM + une politique limitée à ce projet), puis les
-  enregistrer UNE SEULE FOIS avec **`save_credentials`** (stockage chiffré AES-256-GCM
-  lié à la licence). Ensuite `scaleway_provision` et `deploy_app` les résolvent
-  automatiquement — ne JAMAIS redemander les clés à chaque appel. Prévenir que
-  pour une BDD Serverless SQL Scaleway, le username PostgreSQL = l'UUID du principal
-  IAM (pas l'access key) et que la 1re requête après veille prend ~4 s.
+- Credentials cloud : **NE RIEN DEMANDER au client** (mode managé). Au premier appel
+  de `scaleway_provision` ou `deploy_app` SANS `scaleway_credentials`, DeploySovereign
+  crée automatiquement le projet cloud isolé du client, son identité et sa clé
+  (stockés chiffrés, liés à la licence). Le client ne voit jamais la console Scaleway.
+  `save_credentials` ne sert QUE si le client demande explicitement à utiliser SON
+  propre compte Scaleway (BYO) — lui demander alors access_key, secret_key,
+  project_id et application_id (UUID de son application IAM).
+- BDD Serverless SQL : la 1re requête après veille prend ~4 s (réveil) — le dire
+  au client pour éviter l'effet « c'est lent ».
 
 **Mise en ligne de l'app (après le provisioning) — deux chemins :**
 
@@ -215,8 +217,11 @@ l'app de base complète (réservation par zones, menu du jour + carte, admin) et
 initialise sa base toute seule au démarrage. AUCUN build nécessaire : appeler
 directement `deploy_app` avec cette image, les `env` de branding
 (`RESTAURANT_NAME`, `RESTAURANT_TAGLINE`, `RESTAURANT_ADDRESS`, `RESTAURANT_PHONE`)
-et les `secrets` (`DATABASE_URL` de la BDD provisionnée, `ADMIN_PASSWORD`,
-`ADMIN_SECRET` — générer des valeurs robustes). URL publique en ~2 minutes.
+et les `secrets` : `DATABASE_URL: "auto"` (construite côté serveur depuis la BDD
+provisionnée — aucun secret dans la conversation), plus `ADMIN_PASSWORD` et
+`ADMIN_SECRET` (générer des valeurs robustes, et COMMUNIQUER le mot de passe
+admin au client : c'est sa clé d'accès à son espace manager). URL publique en
+~2 minutes.
 
 **Chemin B (app sur mesure) : build & push de l'image** — la seule étape qui
 demande Docker : build avec le Dockerfile de `generate_files`, puis
